@@ -1,4 +1,4 @@
-# iptools-jquery-generic-filter [![Build Status](http://img.shields.io/travis/interactive-pioneers/iptools-jquery-inview.svg)](https://travis-ci.org/interactive-pioneers/iptools-jquery-generic-filter)
+# iptools-jquery-generic-filter [![Build Status](http://img.shields.io/travis/interactive-pioneers/iptools-jquery-generic-filter.svg)](https://travis-ci.org/interactive-pioneers/iptools-jquery-generic-filter)
 
 Abstract Generic Filter Plugin
 
