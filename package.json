@@ -1,0 +1,52 @@
+{
+  "name": "iptools-jquery-generic-filter",
+  "version": "0.0.0",
+  "description": "Abstract generic filter component",
+  "homepage": "https://github.com/interactive-pioneers/iptools-jquery-generic-filter",
+  "author": {
+    "name": "Interactive Pioneers GmbH",
+    "email": "hello@interactive-pioneers.de"
+  },
+  "contributors": [
+    {
+      "name": "Georg Meyer",
+      "email": "gm@interactive-pioneers.de"
+    }
+  ],
+  "bugs": "https://github.com/interactive-pioneers/iptools-jquery-generic-filter/issues",
+  "dependencies": {},
+  "devDependencies": {
+    "grunt": "~0.4.4",
+    "grunt-concurrent": "~0.5.0",
+    "grunt-contrib-clean": "~0.5.0",
+    "grunt-contrib-connect": "~0.7.1",
+    "grunt-contrib-copy": "~0.5.0",
+    "grunt-contrib-jshint": "~0.11.2",
+    "grunt-contrib-uglify": "~0.4.0",
+    "grunt-contrib-watch": "~0.6.1",
+    "grunt-mocha": "~0.4.10",
+    "jit-grunt": "~0.3.2",
+    "time-grunt": "~0.3.1",
+    "jscs": "latest"
+  },
+  "engines": {
+    "node": ">=0.12.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/interactive-pioneers/iptools-jquery-generic-filter"
+  },
+  "licenses": [
+    {
+      "type": "GPL",
+      "url": "https://github.com/ain/koodmeeter.js/blob/master/LICENSE"
+    }
+  ],
+  "scripts": {
+    "test": "grunt travis --verbose"
+  },
+  "keywords": [
+    "javascript",
+    "jquery"
+  ]
+}
