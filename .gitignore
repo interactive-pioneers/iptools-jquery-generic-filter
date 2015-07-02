@@ -27,6 +27,3 @@ build/Release
 node_modules
 bower_components
 #dist/*.js
-
-# linter output
-scss-lint-report.xml

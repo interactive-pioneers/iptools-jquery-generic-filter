@@ -63,7 +63,7 @@ module.exports = function(grunt) {
       options: {
         bundleExec: true,
         config: '.scss-lint.yml',
-        reporterOutput: 'scss-lint-report.xml',
+        reporterOutput: null,
         colorizeOutput: true
       }
     },
