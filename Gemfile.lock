@@ -7,6 +7,7 @@ GIT
       sass (~> 3.4.1)
 
 GEM
+  remote: https://rubygems.org/
   specs:
     rainbow (2.0.0)
     sass (3.4.13)
