@@ -1,0 +1,18 @@
+GIT
+  remote: https://github.com/brigade/scss-lint
+  revision: be6c30fa2f7df4166473a5cf84c3f0decce5ead0
+  specs:
+    scss_lint (0.40.1)
+      rainbow (~> 2.0)
+      sass (~> 3.4.1)
+
+GEM
+  specs:
+    rainbow (2.0.0)
+    sass (3.4.13)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  scss_lint!

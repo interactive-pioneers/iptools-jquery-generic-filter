@@ -16,6 +16,10 @@ Abstract Generic Filter Plugin
 
 ## Contributions
 
+### Development
+- `bundle install`
+- `npm install`
+
 ### Bug reports, suggestions
 
 - File all your issues, feature requests [here](https://github.com/interactive-pioneers/iptools-jquery-generic-filter/issues)

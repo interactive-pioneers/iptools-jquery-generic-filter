@@ -47,6 +47,17 @@ module.exports = function(grunt) {
         'test/spec/{,*/}*.js'
       ]
     },
+    scsslint: {
+      allFiles: [
+        'styles/**/*.scss',
+      ],
+      options: {
+        bundleExec: true,
+        config: '.scss-lint.yml',
+        reporterOutput: 'scss-lint-report.xml',
+        colorizeOutput: true
+      }
+    },
     mocha: {
       all: {
         options: {
@@ -59,6 +70,7 @@ module.exports = function(grunt) {
       qa: {
         tasks: [
           'jshint',
+          'scsslint',
           'mocha'
         ]
       },
@@ -89,6 +101,8 @@ module.exports = function(grunt) {
       }
     }
   });
+
+  grunt.loadNpmTasks('grunt-scss-lint');
 
   grunt.registerTask('test', ['mocha']);
   grunt.registerTask('qa', ['concurrent:qa']);

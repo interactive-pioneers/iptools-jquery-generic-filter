@@ -2,6 +2,7 @@ language: node_js
 node_js:
   - 0.12
 before_install:
+  - bundle install
   - npm cache clean
   - npm install -g grunt-cli
   - npm install -g bower
