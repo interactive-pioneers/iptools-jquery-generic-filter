@@ -25,14 +25,16 @@ module.exports = function(grunt) {
       qa: {
         files: [
           '<%= yeoman.src %>/iptools-jquery-generic-filter.js',
-          'test/spec/test.js'
+          '<%= yeoman.test %>/index.html',
+          '<%= yeoman.test %>/spec/test.js'
         ],
         tasks: ['concurrent:qa']
       },
       bdd: {
         files: [
           '<%= yeoman.src %>/iptools-jquery-generic-filter.js',
-          'test/spec/test.js'
+          '<%= yeoman.test %>/index.html',
+          '<%= yeoman.test %>/spec/test.js'
         ],
         tasks: ['test']
       }
