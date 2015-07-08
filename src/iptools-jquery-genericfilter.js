@@ -19,7 +19,7 @@
   IPTGenericFilter.prototype = {
 
     init: function() {
-      // ...
+      this.addEventListeners();
     },
 
     addEventListeners: function() {
@@ -27,7 +27,8 @@
     },
 
     destroy: function() {
-      // ...
+      //this.$element.off('event' + '.' + this._name);
+      this.$element.removeData('plugin_' + pluginName);
     }
 
   };

@@ -1,7 +1,7 @@
 {
-  "name": "iptools-jquery-generic-filter",
+  "name": "iptools-jquery-genericfilter",
   "description": "jQuery generic filter plugin",
-  "main": "dist/iptools-jquery-generic-filter.min.js",
+  "main": "dist/iptools-jquery-genericfilter.min.js",
   "version": "0.0.0",
   "license": "GPL-3.0",
   "ignore": [
@@ -20,6 +20,6 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/interactive-pioneers/iptools-jquery-generic-filter"
+    "url": "https://github.com/interactive-pioneers/iptools-jquery-genericfilter"
   }
 }

@@ -24,7 +24,7 @@ module.exports = function(grunt) {
     watch: {
       qa: {
         files: [
-          '<%= yeoman.src %>/iptools-jquery-generic-filter.js',
+          '<%= yeoman.src %>/iptools-jquery-genericfilter.js',
           '<%= yeoman.test %>/index.html',
           '<%= yeoman.test %>/spec/test.js'
         ],
@@ -32,7 +32,7 @@ module.exports = function(grunt) {
       },
       bdd: {
         files: [
-          '<%= yeoman.src %>/iptools-jquery-generic-filter.js',
+          '<%= yeoman.src %>/iptools-jquery-genericfilter.js',
           '<%= yeoman.test %>/index.html',
           '<%= yeoman.test %>/spec/test.js'
         ],
@@ -98,7 +98,7 @@ module.exports = function(grunt) {
       },
       dist: {
         files: {
-          'dist/iptools-jquery-generic-filter.min.js': 'src/iptools-jquery-generic-filter.js'
+          'dist/iptools-jquery-genericfilter.min.js': 'src/iptools-jquery-genericfilter.js'
         }
       }
     },
