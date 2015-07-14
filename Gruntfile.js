@@ -88,7 +88,8 @@ module.exports = function(grunt) {
       },
       build: {
         tasks: [
-          'uglify'
+          'uglify',
+          'sass'
         ]
       }
     },
@@ -99,6 +100,16 @@ module.exports = function(grunt) {
       dist: {
         files: {
           'dist/iptools-jquery-genericfilter.min.js': 'src/iptools-jquery-genericfilter.js'
+        }
+      }
+    },
+    sass: {
+      dist: {
+        options: {
+          style: 'expanded'
+        },
+        files: {
+          'dist/iptools-jquery-genericfilter.css': 'styles/styles.scss',
         }
       }
     },
