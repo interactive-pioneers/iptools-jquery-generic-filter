@@ -21,6 +21,8 @@
     this.$element = $(element);
     this.settings = $.extend({}, defaults, options);
 
+    this.$child = $('*[name="' + this.settings.child + '"]');
+
     this.init();
   }
 
@@ -29,9 +31,17 @@
     init: function() {
 
       // make sure child has attr disabled set
-      $('*[name="' + this.settings.child + '"]').attr('disabled', 'disabled');
+      this.disableChildFilter();
 
       this.addEventListeners();
+    },
+
+    enableChildFilter: function() {
+      this.$child.removeAttr('disabled');
+    },
+
+    disableChildFilter: function() {
+      this.$child.attr('disabled', 'disabled');
     },
 
     handleChange: function(event) {
@@ -58,9 +68,9 @@
           $option = $('<option value="' + value + '">' + label + '</option>');
           child.append($option);
         });
-        child.removeAttr('disabled');
+        this.enableChildFilter();
       } else {
-        child.attr('disabled', 'disabled');
+        this.disableChildFilter();
       }
       child.val(0);
       child.trigger('change');
