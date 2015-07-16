@@ -13,10 +13,13 @@
   var JSONMoocData = '{"0": "please choose a child", "1": "option 1", "2": "option 2", "3": "option 3"}';
 
   function IPTGenericFilter(element, options) {
+    if (!options) {
+      throw new Error('Data for filter missing!');
+    } else if (!options.child) {
+      throw new Error('Required property "child" for filter missing!');
+    }
     this.$element = $(element);
     this.settings = $.extend({}, defaults, options);
-    this._defaults = defaults;
-    this._name = pluginName;
 
     this.init();
   }
@@ -24,11 +27,6 @@
   IPTGenericFilter.prototype = {
 
     init: function() {
-      // bail early if config is invalid
-      if (this.settings.child === null) {
-        this.destroy();
-        return;
-      }
 
       // make sure child has attr disabled set
       $('*[name="' + this.settings.child + '"]').attr('disabled', 'disabled');
