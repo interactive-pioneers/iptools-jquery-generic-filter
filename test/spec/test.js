@@ -24,16 +24,30 @@
         return expect($object).to.be.an.object;
       });
 
-      it('expected to throw error if data is missing', function() {
+      it('expected to throw error data is missing', function() {
         function test() {
           $object = $(selector).iptGenericFilter(23);
         }
         return expect(test).to.throw();
       });
 
-      it('expected to throw error if required property is missing', function() {
+      it('expected to throw error required property is missing', function() {
         function test() {
           $object = $(selector).iptGenericFilter({_child: '23'});
+        }
+        return expect(test).to.throw();
+      });
+
+      it('expected to throw error invalid type', function() {
+        function test() {
+          $object = $('#mocha').iptGenericFilter(defaultConfig);
+        }
+        return expect(test).to.throw();
+      });
+
+      it('expected to throw error required child dom element is missing', function() {
+        function test() {
+          $object = $(selector).iptGenericFilter({child: 'level-23'});
         }
         return expect(test).to.throw();
       });

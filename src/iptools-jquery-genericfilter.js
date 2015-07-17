@@ -11,7 +11,7 @@
 
   var TYPES = {
     SELECT: 'select',
-    NONE: ''
+    NONE: 'none'
   };
 
   // mooc data @TODO
@@ -25,9 +25,16 @@
     }
 
     this.$element = $(element);
+    if (this.getElementType() === TYPES.NONE) {
+      throw new Error('Invalid type ' + TYPES.NONE);
+    }
+
     this.settings = $.extend({}, defaults, options);
 
     this.$child = $('*[name="' + this.settings.child + '"]');
+    if (this.$child.length === 0) {
+      throw new Error('Required child dom element is missing');
+    }
     this.type = this.getElementType();
 
     this.disableChildFilter();
