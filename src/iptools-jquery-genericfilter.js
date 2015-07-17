@@ -29,13 +29,13 @@
       throw new Error('Invalid type ' + TYPES.NONE);
     }
 
+    this.type = this.getElementType();
     this.settings = $.extend({}, defaults, options);
 
     this.$child = $('*[name="' + this.settings.child + '"]');
     if (this.$child.length === 0) {
       throw new Error('Required child dom element is missing');
     }
-    this.type = this.getElementType();
 
     this.disableChildFilter();
     addEventListeners(this);
@@ -82,10 +82,11 @@
     child.trigger('change');
   };
 
-  IPTGenericFilter.prototype.fetchData = function(filter, value) {
+  IPTGenericFilter.prototype.fetchData = function(value) {
     // implement ajax functionality here
+    console.log('value ', value);
     var data = $.parseJSON(JSONMoocData);
-    this.updateChild(data, filter, value);
+    this.updateChild(data);
   };
 
   IPTGenericFilter.prototype.destroy = function() {
@@ -95,11 +96,9 @@
 
   function handleElementChange(event) {
     var self = event.data;
-    var filter = self.$element.attr('name');
     var value = self.getElementValue();
-    console.log('value ' + value);
     if (null !== value) {
-      self.fetchData(filter, value);
+      self.fetchData(value);
     } else {
       self.updateChild(null);
     }
