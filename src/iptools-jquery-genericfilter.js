@@ -82,14 +82,18 @@
     },
 
     destroy: function() {
-      this.$element.off('change' + '.' + this._name);
+      this.$element.off(getNamespacedEvent('change'));
       this.$element.removeData('plugin_' + pluginName);
     }
 
   };
 
   function addEventListeners(instance) {
-    instance.$element.on('change' + '.' + pluginName, null, instance, instance.handleChange);
+    instance.$element.on(getNamespacedEvent('change'), null, instance, instance.handleChange);
+  }
+
+  function getNamespacedEvent(name) {
+    return name + '.' + pluginName;
   }
 
   $.fn[pluginName] = function(options) {
