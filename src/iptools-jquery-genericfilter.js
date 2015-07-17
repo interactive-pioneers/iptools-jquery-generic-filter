@@ -63,28 +63,27 @@
   };
 
   IPTGenericFilter.prototype.updateChild = function(data) {
-    var child = $('*[name="' + this.settings.child + '"]');
+    var self = this;
     var $option = null;
-    console.log('updateChild ' + this.settings.child + ' length: ' + child.length + ' data: ' + data);
 
-    child.empty();
+    self.$child.empty();
 
     if (null !== data) {
       $.each(data, function(value, label) {
         $option = $('<option value="' + value + '">' + label + '</option>');
-        child.append($option);
+        self.$child.append($option);
       });
-      this.enableChildFilter();
+      self.enableChildFilter();
     } else {
-      this.disableChildFilter();
+      self.disableChildFilter();
     }
-    child.val(0);
-    child.trigger('change');
+    self.$child.val(0);
+    self.$child.trigger('change');
   };
 
   IPTGenericFilter.prototype.fetchData = function(value) {
     // implement ajax functionality here
-    console.log('value ', value);
+    console.log('fetchData with value ', value);
     var data = $.parseJSON(JSONMoocData);
     this.updateChild(data);
   };
