@@ -27,53 +27,49 @@
     addEventListeners(this);
   }
 
-  IPTGenericFilter.prototype = {
+  IPTGenericFilter.prototype.enableChildFilter = function() {
+    this.$child.removeAttr('disabled');
+  };
 
-    enableChildFilter: function() {
-      this.$child.removeAttr('disabled');
-    },
+  IPTGenericFilter.prototype.disableChildFilter = function() {
+    this.$child.attr('disabled', 'disabled');
+  };
 
-    disableChildFilter: function() {
-      this.$child.attr('disabled', 'disabled');
-    },
+  IPTGenericFilter.prototype.updateChild = function(data) {
+    var child = $('*[name="' + this.settings.child + '"]');
+    var $option = null;
+    console.log('updateChild ' + this.settings.child + ' length: ' + child.length + ' data: ' + data);
 
-    updateChild: function(data) {
-      var child = $('*[name="' + this.settings.child + '"]');
-      var $option = null;
-      console.log('updateChild ' + this.settings.child + ' length: ' + child.length + ' data: ' + data);
+    child.empty();
 
-      child.empty();
-
-      if (null !== data) {
-        $.each(data, function(value, label) {
-          $option = $('<option value="' + value + '">' + label + '</option>');
-          child.append($option);
-        });
-        this.enableChildFilter();
-      } else {
-        this.disableChildFilter();
-      }
-      child.val(0);
-      child.trigger('change');
-    },
-
-    getValue: function(self) {
-      var value = $.trim(self.$element.val());
-      value = parseInt(value, 10) || 0;
-      return value;
-    },
-
-    fetchData: function(filter, value) {
-      // implement ajax functionality here
-      var data = $.parseJSON(JSONMoocData);
-      this.updateChild(data, filter, value);
-    },
-
-    destroy: function() {
-      this.$element.off(getNamespacedEvent('change'));
-      this.$element.removeData('plugin_' + pluginName);
+    if (null !== data) {
+      $.each(data, function(value, label) {
+        $option = $('<option value="' + value + '">' + label + '</option>');
+        child.append($option);
+      });
+      this.enableChildFilter();
+    } else {
+      this.disableChildFilter();
     }
+    child.val(0);
+    child.trigger('change');
+  };
 
+  IPTGenericFilter.prototype.getValue = function(self) {
+    var value = $.trim(self.$element.val());
+    value = parseInt(value, 10) || 0;
+    return value;
+  };
+
+  IPTGenericFilter.prototype.fetchData = function(filter, value) {
+    // implement ajax functionality here
+    var data = $.parseJSON(JSONMoocData);
+    this.updateChild(data, filter, value);
+  };
+
+  IPTGenericFilter.prototype.destroy = function() {
+    this.$element.off(getNamespacedEvent('change'));
+    this.$element.removeData('plugin_' + pluginName);
   };
 
   function handleElementChange(event) {
