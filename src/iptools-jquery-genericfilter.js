@@ -33,7 +33,7 @@
       // make sure child has attr disabled set
       this.disableChildFilter();
 
-      this.addEventListeners();
+      addEventListeners(this);
     },
 
     enableChildFilter: function() {
@@ -88,16 +88,16 @@
       this.updateChild(data, filter, value);
     },
 
-    addEventListeners: function() {
-      this.$element.on('change' + '.' + this.name, null, this, this.handleChange);
-    },
-
     destroy: function() {
       this.$element.off('change' + '.' + this._name);
       this.$element.removeData('plugin_' + pluginName);
     }
 
   };
+
+  function addEventListeners(instance) {
+    instance.$element.on('change' + '.' + pluginName, null, instance, instance.handleChange);
+  }
 
   $.fn[pluginName] = function(options) {
     return this.each(function() {
