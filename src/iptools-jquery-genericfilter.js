@@ -9,6 +9,11 @@
     child: null
   };
 
+  var TYPES = {
+    SELECT: 'select',
+    NONE: ''
+  };
+
   // mooc data @TODO
   var JSONMoocData = '{"0": "please choose a child", "1": "option 1", "2": "option 2", "3": "option 3"}';
 
@@ -18,14 +23,29 @@
     } else if (!options.child) {
       throw new Error('Required property "child" for filter missing!');
     }
+
     this.$element = $(element);
     this.settings = $.extend({}, defaults, options);
 
     this.$child = $('*[name="' + this.settings.child + '"]');
+    this.type = this.getElementType();
 
     this.disableChildFilter();
     addEventListeners(this);
   }
+
+  IPTGenericFilter.prototype.getElementValue = function() {
+    var value = $.trim(this.$element.val());
+    value = validateValue(value, this.type);
+    return value;
+  };
+
+  IPTGenericFilter.prototype.getElementType = function() {
+    if (this.$element.is('select')) {
+      return TYPES.SELECT;
+    }
+    return TYPES.NONE;
+  };
 
   IPTGenericFilter.prototype.enableChildFilter = function() {
     this.$child.removeAttr('disabled');
@@ -55,12 +75,6 @@
     child.trigger('change');
   };
 
-  IPTGenericFilter.prototype.getValue = function(self) {
-    var value = $.trim(self.$element.val());
-    value = parseInt(value, 10) || 0;
-    return value;
-  };
-
   IPTGenericFilter.prototype.fetchData = function(filter, value) {
     // implement ajax functionality here
     var data = $.parseJSON(JSONMoocData);
@@ -75,13 +89,27 @@
   function handleElementChange(event) {
     var self = event.data;
     var filter = self.$element.attr('name');
-    var value = self.getValue(self);
+    var value = self.getElementValue();
     console.log('value ' + value);
-    if (value !== 0) {
+    if (null !== value) {
       self.fetchData(filter, value);
     } else {
       self.updateChild(null);
     }
+  }
+
+  function validateValue(value, type) {
+    switch (type) {
+
+      case TYPES.SELECT:
+        value = parseInt(value, 10) || null;
+        break;
+
+      default:
+        break;
+    }
+
+    return value;
   }
 
   function addEventListeners(instance) {

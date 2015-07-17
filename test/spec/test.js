@@ -50,6 +50,23 @@
         $object.data(pluginName).destroy();
       });
 
+      it('expected to optain null value', function() {
+        return expect($object.data(pluginName).getElementValue()).to.be.not.ok;
+      });
+
+      it('expected to optain null value', function() {
+        return expect($object.val('0').data(pluginName).getElementValue()).to.be.not.ok;
+      });
+
+      it('expected to optain numeric value 2', function() {
+        return expect($object.val('2').data(pluginName).getElementValue()).to.eql(2);
+      });
+
+      it('expected to optain element type', function() {
+        $object.data(pluginName).getElementType();
+        return expect($object.data(pluginName).type).to.eql('select');
+      });
+
       it('expected to enable child filter', function() {
         $object.data(pluginName).enableChildFilter();
         return expect($object.data(pluginName).$child.attr('disabled')).to.not.be.ok;
