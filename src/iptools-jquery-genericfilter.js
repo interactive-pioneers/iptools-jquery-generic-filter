@@ -23,18 +23,11 @@
 
     this.$child = $('*[name="' + this.settings.child + '"]');
 
-    this.init();
+    this.disableChildFilter();
+    addEventListeners(this);
   }
 
   IPTGenericFilter.prototype = {
-
-    init: function() {
-
-      // make sure child has attr disabled set
-      this.disableChildFilter();
-
-      addEventListeners(this);
-    },
 
     enableChildFilter: function() {
       this.$child.removeAttr('disabled');
