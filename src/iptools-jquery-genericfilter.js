@@ -15,7 +15,7 @@
   };
 
   // mooc data @TODO
-  var JSONMoocData = '{"0": "please choose a child", "1": "option 1", "2": "option 2", "3": "option 3"}';
+  var moocData = '<option value="0">choose</option><option value="1">1</option><option value="2">2</option>';
 
   function IPTGenericFilter(element, options) {
     if (!options) {
@@ -62,17 +62,13 @@
     this.$child.attr('disabled', 'disabled');
   };
 
-  IPTGenericFilter.prototype.updateChild = function(data) {
+  IPTGenericFilter.prototype.updateChild = function(htmlData) {
     var self = this;
-    var $option = null;
 
     self.$child.empty();
 
-    if (null !== data) {
-      $.each(data, function(value, label) {
-        $option = $('<option value="' + value + '">' + label + '</option>');
-        self.$child.append($option);
-      });
+    if (null !== htmlData) {
+      self.$child.append(htmlData);
       self.enableChildFilter();
     } else {
       self.disableChildFilter();
@@ -84,8 +80,7 @@
   IPTGenericFilter.prototype.fetchData = function(value) {
     // implement ajax functionality here
     console.log('fetchData with value ', value);
-    var data = $.parseJSON(JSONMoocData);
-    this.updateChild(data);
+    this.updateChild(moocData);
   };
 
   IPTGenericFilter.prototype.destroy = function() {
