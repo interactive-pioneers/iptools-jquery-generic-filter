@@ -37,18 +37,6 @@
       this.$child.attr('disabled', 'disabled');
     },
 
-    handleChange: function(event) {
-      var self = event.data;
-      var filter = self.$element.attr('name');
-      var value = self.getValue(self);
-      console.log('value ' + value);
-      if (value !== 0) {
-        self.fetchData(filter, value);
-      } else {
-        self.updateChild(null);
-      }
-    },
-
     updateChild: function(data) {
       var child = $('*[name="' + this.settings.child + '"]');
       var $option = null;
@@ -88,8 +76,20 @@
 
   };
 
+  function handleElementChange(event) {
+    var self = event.data;
+    var filter = self.$element.attr('name');
+    var value = self.getValue(self);
+    console.log('value ' + value);
+    if (value !== 0) {
+      self.fetchData(filter, value);
+    } else {
+      self.updateChild(null);
+    }
+  }
+
   function addEventListeners(instance) {
-    instance.$element.on(getNamespacedEvent('change'), null, instance, instance.handleChange);
+    instance.$element.on(getNamespacedEvent('change'), null, instance, handleElementChange);
   }
 
   function getNamespacedEvent(name) {
