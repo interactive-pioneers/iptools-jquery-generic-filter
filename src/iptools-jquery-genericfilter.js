@@ -6,118 +6,124 @@
   var pluginName = 'iptGenericFilter';
 
   var defaults = {
-    child: null
+    basePath: ''
   };
 
-  var TYPES = {
-    SELECT: 'select',
-    NONE: 'none'
-  };
+  var triggerSelector = 'input, select, textarea';
 
-  // mooc data @TODO
-  var moocData = '<option value="0">choose</option><option value="1">1</option><option value="2">2</option>';
-
-  function IPTGenericFilter(element, options) {
-    if (!options) {
-      throw new Error('Data for filter missing!');
-    } else if (!options.child) {
-      throw new Error('Required property "child" for filter missing!');
-    }
-
-    this.$element = $(element);
-    if (this.getElementType() === TYPES.NONE) {
-      throw new Error('Invalid type ' + TYPES.NONE);
-    }
-
-    this.type = this.getElementType();
+  function IPTGenericFilter(form, options) {
     this.settings = $.extend({}, defaults, options);
+    this.$form = $(form);
+    this._$lastTrigger = null;
 
-    this.$child = $('*[name="' + this.settings.child + '"]');
-    if (this.$child.length === 0) {
-      throw new Error('Required child dom element is missing');
-    }
-
-    this.disableChildFilter();
     addEventListeners(this);
   }
 
-  IPTGenericFilter.prototype.getElementValue = function() {
-    var value = $.trim(this.$element.val());
-    value = validateValue(value, this.type);
-    return value;
+  IPTGenericFilter.prototype.clearFilter = function($filters) {
+    $filters.find(triggerSelector).val(null);
+    $filters.empty();
   };
 
-  IPTGenericFilter.prototype.getElementType = function() {
-    if (this.$element.is('select')) {
-      return TYPES.SELECT;
+  IPTGenericFilter.prototype.getFilterDependencies = function(filter) {
+    var dependencySelectors = filter.data('genericfilter-dependencies');
+    var $dependencies = $(dependencySelectors.toString());
+
+    if (dependencySelectors.length === 0 || $dependencies.length === 0) {
+      return null;
     }
-    return TYPES.NONE;
+
+    return $dependencies;
   };
 
-  IPTGenericFilter.prototype.enableChildFilter = function() {
-    this.$child.removeAttr('disabled');
-  };
+  IPTGenericFilter.prototype.updateFilterDependencies = function($trigger, data) {
+    var $dependencies = this.getFilterDependencies($trigger);
 
-  IPTGenericFilter.prototype.disableChildFilter = function() {
-    this.$child.attr('disabled', 'disabled');
-  };
+    // trigger form submit and bail if filter has no dependencies
+    if (null === $dependencies) {
+      this.updateResult();
+      return;
+    }
 
-  IPTGenericFilter.prototype.updateChild = function(htmlData) {
-    var self = this;
+    // bail if trigger was triggered by it's dedendency
+    if (this._$lastTrigger !== null && isLastTriggerADependency(this._$lastTrigger, $trigger)) {
+      this.updateResult();
+      this._$lastTrigger = null;
+      return;
+    }
 
-    self.$child.empty();
-
-    if (null !== htmlData) {
-      self.$child.append(htmlData);
-      self.enableChildFilter();
+    // if data add, otherwise clear dependency
+    if (null !== data) {
+      $.each(data, function(selector, html) {
+        $(selector).html(html);
+      });
     } else {
-      self.disableChildFilter();
+      this.clearFilter($dependencies);
     }
-    self.$child.val(0);
-    self.$child.trigger('change');
+
+    // traverse dependency chain
+    this._$lastTrigger = $trigger;
+    this.updateFilterDependencies($dependencies, null);
   };
 
-  IPTGenericFilter.prototype.fetchData = function(value) {
-    // implement ajax functionality here
-    console.log('fetchData with value ', value);
-    this.updateChild(moocData);
+  IPTGenericFilter.prototype.updateResult = function() {
+    this.$form.submit();
   };
 
   IPTGenericFilter.prototype.destroy = function() {
-    this.$element.off(getNamespacedEvent('change'));
-    this.$element.removeData('plugin_' + pluginName);
+    this.$form.off(pluginName);
+    this.$form.removeData('plugin_' + pluginName);
   };
 
-  function handleElementChange(event) {
+  function isLastTriggerADependency($lastTrigger, $trigger) {
+    var is = false;
+    var triggerId = '#' + $lastTrigger.attr('id');
+    var dependenciesSelector = $trigger.data('genericfilter-dependencies');
+    var dependencies = dependenciesSelector.split(',');
+
+    $.each(dependencies, function(index, value) {
+      if (triggerId === $.trim(value)) {
+        is = true;
+      }
+    });
+
+    return is;
+  }
+
+  function addUnobtrusiveAjaxParams(event) {
+    var instance = event.data;
+    var $input = $(event.target);
+    var $filter = $input.closest('.genericfilter__filter');
+    //var uid = encodeURIComponent($filter.attr('id'));
+    var dependencies = encodeURIComponent($.trim($filter.data('genericfilter-dependencies')));
+
+    // do not perform a filter call if there is no expecting result
+    if ('' === dependencies) {
+      instance.updateResult();
+      return false;
+    }
+    // add url
+    $input.data('url', instance.settings.basePath + 'filter');
+    $input.data('params', 'dependencies=' + dependencies);
+  }
+
+  function handleUnobtrusiveAjaxComplete(event, xhr) {
     var self = event.data;
-    var value = self.getElementValue();
-    if (null !== value) {
-      self.fetchData(value);
-    } else {
-      self.updateChild(null);
-    }
-  }
+    var $trigger = $(event.target).closest('.genericfilter__filter');
 
-  function validateValue(value, type) {
-    switch (type) {
+    var response = $.trim(xhr.responseText) !== '' ?
+      $.parseJSON($.trim(xhr.responseText).replace(/\r?\n|\r/g, ''))
+      : null;
 
-      case TYPES.SELECT:
-        value = parseInt(value, 10) || null;
-        break;
-
-      default:
-        break;
-    }
-
-    return value;
-  }
-
-  function addEventListeners(instance) {
-    instance.$element.on(getNamespacedEvent('change'), null, instance, handleElementChange);
+    self.updateFilterDependencies($trigger, response);
   }
 
   function getNamespacedEvent(name) {
     return name + '.' + pluginName;
+  }
+
+  function addEventListeners(instance) {
+    instance.$form.on(getNamespacedEvent('ajax:before'), triggerSelector, instance, addUnobtrusiveAjaxParams);
+    instance.$form.on(getNamespacedEvent('ajax:complete'), triggerSelector, instance, handleUnobtrusiveAjaxComplete);
   }
 
   $.fn[pluginName] = function(options) {

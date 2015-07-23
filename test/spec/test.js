@@ -19,7 +19,7 @@
         }
       });
 
-      it('expected to construct object', function() {
+      /*it('expected to construct object', function() {
         $object = $(selector).iptGenericFilter(defaultConfig);
         return expect($object).to.be.an.object;
       });
@@ -50,7 +50,7 @@
           $object = $(selector).iptGenericFilter({child: 'level-23'});
         }
         return expect(test).to.throw();
-      });
+      });*/
 
     });
 
@@ -64,7 +64,7 @@
         $object.data(pluginName).destroy();
       });
 
-      it('expected to optain null value', function() {
+      /*it('expected to optain null value', function() {
         return expect($object.data(pluginName).getElementValue()).to.be.not.ok;
       });
 
@@ -89,7 +89,7 @@
       it('expected to disable child filter', function() {
         $object.data(pluginName).disableChildFilter();
         return expect($object.data(pluginName).$child.attr('disabled')).to.eql('disabled');
-      });
+      });*/
 
     });
 
@@ -99,10 +99,10 @@
         $object = $(selector).iptGenericFilter(defaultConfig);
       });
 
-      it('expected to remove data', function() {
+      /*it('expected to remove data', function() {
         $object.data(pluginName).destroy();
         return expect($object.data(pluginName)).to.not.be.ok;
-      });
+      });*/
 
     });
   });
