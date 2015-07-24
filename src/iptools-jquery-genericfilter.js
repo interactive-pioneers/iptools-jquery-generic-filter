@@ -38,7 +38,7 @@
   IPTGenericFilter.prototype.updateFilterDependencies = function($trigger, data) {
     var $dependencies = this.getFilterDependencies($trigger);
 
-    // bail if there are no dependencies or recursion is taking place
+    // bail if there are no dependencies or recursion is detected
     if (null === $dependencies || isLastTriggerADependency(this._$lastTrigger, $trigger)) {
       this.updateResult();
       this._$lastTrigger = null;
