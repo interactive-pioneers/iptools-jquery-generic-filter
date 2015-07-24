@@ -38,24 +38,16 @@
   IPTGenericFilter.prototype.updateFilterDependencies = function($trigger, data) {
     var $dependencies = this.getFilterDependencies($trigger);
 
-    // trigger form submit and bail if filter has no dependencies
-    if (null === $dependencies) {
-      this.updateResult();
-      return;
-    }
-
-    // bail if trigger was triggered by it's dedendency
-    if (this._$lastTrigger !== null && isLastTriggerADependency(this._$lastTrigger, $trigger)) {
+    // bail if there are no dependencies or recursion is taking place
+    if (null === $dependencies || isLastTriggerADependency(this._$lastTrigger, $trigger)) {
       this.updateResult();
       this._$lastTrigger = null;
       return;
     }
 
-    // if data add, otherwise clear dependency
+    // update markup
     if (null !== data && null !== data.filters) {
-      $.each(data.filters, function(key, filter) {
-        $(filter.selector).html(filter.template);
-      });
+      updateDOM(data.filters);
     } else {
       this.clearFilter($dependencies);
     }
@@ -74,7 +66,17 @@
     this.$form.removeData('plugin_' + pluginName);
   };
 
+  function updateDOM(filters) {
+    $.each(filters, function(key, filter) {
+      $(filter.selector).html(filter.template);
+    });
+  }
+
   function isLastTriggerADependency($lastTrigger, $trigger) {
+    if (null === $lastTrigger) {
+      return false;
+    }
+
     var is = false;
     var triggerId = '#' + $lastTrigger.attr('id');
     var dependenciesSelector = $trigger.data('genericfilter-dependencies');
@@ -98,6 +100,9 @@
     var url = instance.settings.basePath + 'filter';
     var params = 'dependencies=' + dependencies;
 
+    // set last trigger
+    //instance._$lastTrigger = $filter;
+
     // if trigger has no dependencies, skip call.
     if ('' === dependencies) {
       instance.updateResult();
@@ -105,6 +110,7 @@
     }
 
     // handle checkbox groups
+    // @TODO do not add event.target twice
     var isCheckbox = $input.is('input[type="checkbox"]');
     var $checkboxes = $filter.find('input[type="checkbox"]');
     var isCheckboxGroup = $checkboxes.length >= 2;
@@ -123,12 +129,11 @@
   }
 
   function handleUnobtrusiveAjaxComplete(event, xhr) {
-    var self = event.data;
+    var instance = event.data;
     var $trigger = $(event.target).closest('.genericfilter__filter');
-
     var response = $.parseJSON(xhr.responseText);
 
-    self.updateFilterDependencies($trigger, response);
+    instance.updateFilterDependencies($trigger, response);
   }
 
   function getNamespacedEvent(name) {
