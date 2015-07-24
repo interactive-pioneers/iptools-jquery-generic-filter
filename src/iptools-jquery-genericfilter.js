@@ -25,8 +25,15 @@
   };
 
   IPTGenericFilter.prototype.getFilterDependencies = function(filter) {
-    var dependencySelectors = filter.data('genericfilter-dependencies');
-    var $dependencies = $(dependencySelectors.toString());
+    var selector = '';
+    var dependencySelectors = filter.data('genericfilter-dependencies').toString();
+    var dependencies = dependencySelectors.split(',');
+
+    $.each(dependencies, function(index, id) {
+      selector += '#' + $.trim(id) + (index < dependencies.length - 1 ? ',' : '');
+    });
+
+    var $dependencies = $(selector);
 
     if (dependencySelectors.length === 0 || $dependencies.length === 0) {
       return null;
@@ -68,7 +75,7 @@
 
   function updateDOM(filters) {
     $.each(filters, function(key, filter) {
-      $(filter.selector).html(filter.template);
+      $('#' + filter.selector).html(filter.template);
     });
   }
 
@@ -78,7 +85,7 @@
     }
 
     var is = false;
-    var triggerId = '#' + $lastTrigger.attr('id');
+    var triggerId = $lastTrigger.attr('id');
     var dependenciesSelector = $trigger.data('genericfilter-dependencies');
     var dependencies = dependenciesSelector.split(',');
 
@@ -99,9 +106,6 @@
 
     var url = instance.settings.basePath + 'filter';
     var params = 'dependencies=' + dependencies;
-
-    // set last trigger
-    //instance._$lastTrigger = $filter;
 
     // if trigger has no dependencies, skip call.
     if ('' === dependencies) {
