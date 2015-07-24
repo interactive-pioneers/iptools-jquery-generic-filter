@@ -52,6 +52,7 @@
     }
 
     // if data add, otherwise clear dependency
+    console.log(data);
     if (null !== data) {
       $.each(data, function(selector, html) {
         $(selector).html(html);
@@ -126,9 +127,7 @@
     var self = event.data;
     var $trigger = $(event.target).closest('.genericfilter__filter');
 
-    var response = $.trim(xhr.responseText) !== '' ?
-      $.parseJSON($.trim(xhr.responseText).replace(/\r?\n|\r/g, ''))
-      : null;
+    var response = $.parseJSON(xhr.responseText);
 
     self.updateFilterDependencies($trigger, response);
   }
