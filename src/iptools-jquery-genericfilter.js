@@ -93,17 +93,33 @@
     var instance = event.data;
     var $input = $(event.target);
     var $filter = $input.closest('.genericfilter__filter');
-    //var uid = encodeURIComponent($filter.attr('id'));
     var dependencies = encodeURIComponent($.trim($filter.data('genericfilter-dependencies')));
 
-    // do not perform a filter call if there is no expecting result
+    var url = instance.settings.basePath + 'filter';
+    var params = 'dependencies=' + dependencies;
+
+    // if trigger has no dependencies, skip call.
     if ('' === dependencies) {
       instance.updateResult();
       return false;
     }
-    // add url
-    $input.data('url', instance.settings.basePath + 'filter');
-    $input.data('params', 'dependencies=' + dependencies);
+
+    // handle checkbox groups
+    var isCheckbox = $input.is('input[type="checkbox"]');
+    var $checkboxes = $filter.find('input[type="checkbox"]');
+    var isCheckboxGroup = $checkboxes.length >= 2;
+    if (isCheckbox && isCheckboxGroup) {
+      $checkboxes.each(function() {
+        if ($(this).is(':checked')) {
+          params += '&' + encodeURIComponent($(this).attr('name')) + '=on';
+        }
+      });
+    }
+
+    // map properties
+    $input.data('url', url);
+    $input.data('params', params);
+
   }
 
   function handleUnobtrusiveAjaxComplete(event, xhr) {
