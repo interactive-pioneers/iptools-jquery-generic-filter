@@ -52,10 +52,9 @@
     }
 
     // if data add, otherwise clear dependency
-    console.log(data);
-    if (null !== data) {
-      $.each(data, function(selector, html) {
-        $(selector).html(html);
+    if (null !== data && null !== data.filters) {
+      $.each(data.filters, function(key, filter) {
+        $(filter.selector).html(filter.template);
       });
     } else {
       this.clearFilter($dependencies);
