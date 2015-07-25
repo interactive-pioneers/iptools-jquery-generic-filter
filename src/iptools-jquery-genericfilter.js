@@ -98,6 +98,24 @@
     return is;
   }
 
+  function isFilterCheckboxGroup($input) {
+    var $filter = $input.closest(filterSelector);
+    var $checkboxes = $filter.find('input[type="checkbox"]');
+    return $checkboxes.length >= 2;
+  }
+
+  function appendParamsCheckboxGroupValues($input, params) {
+    var $filter = $input.closest(filterSelector);
+    var $checkboxes = $filter.find('input[type="checkbox"]');
+    params = params || '';
+    $checkboxes.each(function() {
+      if ($(this).is(':checked') && $(this).attr('name') !== $input.attr('name')) {
+        params += '&' + encodeURIComponent($(this).attr('name')) + '=on';
+      }
+    });
+    return params;
+  }
+
   function addUnobtrusiveAjaxParams(event) {
     var instance = event.data;
     var $input = $(event.target);
@@ -114,16 +132,8 @@
     }
 
     // handle checkbox groups
-    // @TODO do not add event.target twice
-    var isCheckbox = $input.is('input[type="checkbox"]');
-    var $checkboxes = $filter.find('input[type="checkbox"]');
-    var isCheckboxGroup = $checkboxes.length >= 2;
-    if (isCheckbox && isCheckboxGroup) {
-      $checkboxes.each(function() {
-        if ($(this).is(':checked')) {
-          params += '&' + encodeURIComponent($(this).attr('name')) + '=on';
-        }
-      });
+    if (isFilterCheckboxGroup($input)) {
+      params = appendParamsCheckboxGroupValues($input, params);
     }
 
     // map properties
