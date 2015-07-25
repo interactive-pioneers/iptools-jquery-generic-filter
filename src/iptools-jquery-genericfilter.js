@@ -10,6 +10,8 @@
   };
 
   var triggerSelector = 'input, select, textarea';
+  var filterSelector = '.genericfilter__filter';
+  var filterDataDependencies = 'genericfilter-dependencies';
 
   function IPTGenericFilter(form, options) {
     this.settings = $.extend({}, defaults, options);
@@ -26,7 +28,7 @@
 
   IPTGenericFilter.prototype.getFilterDependencies = function(filter) {
     var selector = '';
-    var dependencySelectors = filter.data('genericfilter-dependencies').toString();
+    var dependencySelectors = filter.data(filterDataDependencies).toString();
     var dependencies = dependencySelectors.split(',');
 
     $.each(dependencies, function(index, id) {
@@ -86,7 +88,7 @@
 
     var is = false;
     var triggerId = $lastTrigger.attr('id');
-    var dependenciesSelector = $trigger.data('genericfilter-dependencies');
+    var dependenciesSelector = $trigger.data(filterDataDependencies);
     var dependencies = dependenciesSelector.split(',');
 
     $.each(dependencies, function(index, value) {
@@ -119,8 +121,8 @@
   function addUnobtrusiveAjaxParams(event) {
     var instance = event.data;
     var $input = $(event.target);
-    var $filter = $input.closest('.genericfilter__filter');
-    var dependencies = encodeURIComponent($.trim($filter.data('genericfilter-dependencies')));
+    var $filter = $input.closest(filterSelector);
+    var dependencies = encodeURIComponent($.trim($filter.data(filterDataDependencies)));
 
     var url = instance.settings.basePath + 'filter';
     var params = 'dependencies=' + dependencies;
@@ -144,7 +146,7 @@
 
   function handleUnobtrusiveAjaxComplete(event, xhr) {
     var instance = event.data;
-    var $trigger = $(event.target).closest('.genericfilter__filter');
+    var $trigger = $(event.target).closest(filterSelector);
     var response = $.parseJSON(xhr.responseText);
 
     instance.updateFilterDependencies($trigger, response);
