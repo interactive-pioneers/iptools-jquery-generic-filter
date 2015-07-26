@@ -5,17 +5,20 @@
 
   var pluginName = 'iptGenericFilter';
 
-  var defaults = {};
+  var defaults = {
+    noDependencyFilterTrigger: false
+  };
 
   var triggerSelector = 'input, select, textarea';
   var filterSelector = '.genericfilter__filter';
   var filterDataDependencies = 'genericfilter-dependencies';
 
   function IPTGenericFilter(form, options) {
-    // @TODO check filter for data attributes
     this.settings = $.extend({}, defaults, options);
     this.$form = $(form);
     this._$lastTrigger = null;
+
+    checkIntegrity(this.$form);
 
     addEventListeners(this);
   }
@@ -130,7 +133,7 @@
     var dependencies = $.trim($filter.data(filterDataDependencies));
 
     // if trigger has no dependencies, skip call.
-    if ('' === dependencies) {
+    if ('' === dependencies && !instance.settings.noDependencyFilterTrigger) {
       instance.updateResult();
       return false;
     }
@@ -156,6 +159,15 @@
   function addEventListeners(instance) {
     instance.$form.on(getNamespacedEvent('ajax:before'), triggerSelector, instance, handleUnobtrusiveAjaxBefore);
     instance.$form.on(getNamespacedEvent('ajax:complete'), triggerSelector, instance, handleUnobtrusiveAjaxComplete);
+  }
+
+  function checkIntegrity($form) {
+    // check for required filter attribute data-genericfilter-dependencies
+    $form.find(filterSelector).each(function() {
+      if (typeof $(this).data(filterDataDependencies) === 'undefined') {
+        throw new Error('Required data attribute genericfilter-dependencies missing for ' + $(this).attr('id'));
+      }
+    });
   }
 
   $.fn[pluginName] = function(options) {
