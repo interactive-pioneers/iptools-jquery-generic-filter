@@ -94,31 +94,20 @@
   }
 
   function convertDependencyListToSelector(list) {
-    var selector = '';
-    var items = list.split(',');
-    var count = items.length;
-
-    for (var i = 0; i < count; i++) {
-      selector += '#' + $.trim(items[i]) + (i < (count - 1) ? ',' : '');
-    }
-
-    return selector;
+    return list.replace(/([A-Za-z]+[\w\-\:\.]*)/g, '#$&');
   }
 
   function isFilterCheckboxGroup($input) {
-    var $filter = $input.closest(filterSelector);
-    var $checkboxes = $filter.find('input[type="checkbox"]');
-
-    return $checkboxes.length >= 2;
+    var $checkboxes = getCheckboxGroupMembers($input, true);
+    return $checkboxes.length > 0;
   }
 
-  function appendParamsCheckboxGroupValues($input) {
-    var $filter = $input.closest(filterSelector);
-    var $checkboxes = $filter.find('input[type="checkbox"]');
+  function appendCheckboxGroupValuesToAjaxParameter($input) {
+    var $checkboxes = getCheckboxGroupMembers($input, true);
     var params = $input.data('params');
 
     $checkboxes.each(function() {
-      if ($(this).is(':checked') && $(this).attr('name') !== $input.attr('name')) {
+      if ($(this).is(':checked')) {
         params += '&' + encodeURIComponent($(this).attr('name')) + '=on';
       }
     });
@@ -126,30 +115,46 @@
     $input.data('params', params);
   }
 
+  function getCheckboxGroupMembers($input, skipGiven) {
+    var $filter = $input.closest(filterSelector);
+    var $collection = $filter.find('input[type="checkbox"]').not(skipGiven ? $input : '');
+
+    return $collection;
+  }
+
   function handleUnobtrusiveAjaxBefore(event) {
     var instance = event.data;
     var $input = $(event.target);
-    var $filter = $input.closest(filterSelector);
-    var dependencies = $.trim($filter.data(filterDataDependencies));
+    var dependencies = $.trim($input.closest(filterSelector).data(filterDataDependencies));
 
-    // if trigger has no dependencies, skip call.
+    // If filter has no dependencies and call is not forced by settings, skip ajax call.
     if ('' === dependencies && !instance.settings.noDependencyFilterTrigger) {
       instance.updateResult();
       return false;
     }
 
-    // handle checkbox groups
+    // If filter is part of a checkbox group, append values from all group members to ajax call.
     if (isFilterCheckboxGroup($input)) {
-      appendParamsCheckboxGroupValues($input);
+      appendCheckboxGroupValuesToAjaxParameter($input);
     }
   }
 
   function handleUnobtrusiveAjaxComplete(event, xhr) {
     var instance = event.data;
-    var $trigger = $(event.target).closest(filterSelector);
-    var response = $.parseJSON(xhr.responseText);
+    var $filter = $(event.target).closest(filterSelector);
 
-    instance.updateFilterDependencies($trigger, response);
+    var responseJSON = null;
+    try {
+      responseJSON = $.parseJSON(xhr.responseText);
+    } catch (error) {
+      if ('object' === typeof console && 'function' === typeof console.log) {
+        console.log(xhr);
+        console.log(error);
+      }
+      responseJSON = null;
+    } finally {
+      instance.updateFilterDependencies($filter, responseJSON);
+    }
   }
 
   function getNamespacedEvent(name) {
@@ -162,7 +167,8 @@
   }
 
   function checkIntegrity($form) {
-    // check for required filter attribute data-genericfilter-dependencies
+    // check for required filter attribute "data-genericfilter-dependencies"
+    // @IMPROVEMENT: Add empty attribute instead of trowing an error.
     $form.find(filterSelector).each(function() {
       if (typeof $(this).data(filterDataDependencies) === 'undefined') {
         throw new Error('Required data attribute genericfilter-dependencies missing for ' + $(this).attr('id'));
