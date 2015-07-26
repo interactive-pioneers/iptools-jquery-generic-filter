@@ -23,20 +23,12 @@
     addEventListeners(this);
   }
 
-  IPTGenericFilter.prototype.getFilterDependencies = function(filter) {
-    var dependencyList = filter.data(filterDataDependencies).toString();
-    var selector = convertDependencyListToSelector(dependencyList);
-    var $dependencies = $(selector);
-
-    return $dependencies.length > 0 ? $dependencies : null;
-  };
-
   IPTGenericFilter.prototype.updateFilterDependencies = function($trigger, data) {
-    var $dependencies = this.getFilterDependencies($trigger);
+    var $dependencies = getFilterDependencies($trigger);
     var recursion = isLastTriggerADependency(this._$lastTrigger, $trigger);
 
     // bail if there are no dependencies or recursion is detected
-    if (null === $dependencies || recursion) {
+    if ($dependencies.length === 0 || recursion) {
       this.updateResult();
       this._$lastTrigger = null;
       return;
@@ -79,6 +71,11 @@
       return false;
     }
 
+    //var _dependencies = $trigger.data(filterDataDependencies);
+    //var _selector = convertDependencyListToSelector(_dependencies);
+    //console.log($(_selector).is($lastTrigger).length > 0);
+    //return $(_selector).is($lastTrigger).length === 0;
+
     var is = false;
     var triggerId = $lastTrigger.attr('id');
     var dependenciesSelector = $trigger.data(filterDataDependencies);
@@ -93,8 +90,10 @@
     return is;
   }
 
-  function convertDependencyListToSelector(list) {
-    return list.replace(/([A-Za-z]+[\w\-\:\.]*)/g, '#$&');
+  function getFilterDependencies($filter) {
+    var list = $filter.data(filterDataDependencies);
+    var selector = list.replace(/([A-Za-z]+[\w\-\:\.]*)/g, '#$&');
+    return $(selector);
   }
 
   function isFilterCheckboxGroup($input) {
