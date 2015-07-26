@@ -5,15 +5,14 @@
 
   var pluginName = 'iptGenericFilter';
 
-  var defaults = {
-    basePath: ''
-  };
+  var defaults = {};
 
   var triggerSelector = 'input, select, textarea';
   var filterSelector = '.genericfilter__filter';
   var filterDataDependencies = 'genericfilter-dependencies';
 
   function IPTGenericFilter(form, options) {
+    // @TODO check filter for data attributes
     this.settings = $.extend({}, defaults, options);
     this.$form = $(form);
     this._$lastTrigger = null;
@@ -21,34 +20,20 @@
     addEventListeners(this);
   }
 
-  IPTGenericFilter.prototype.clearFilter = function($filters) {
-    $filters.find(triggerSelector).val(null);
-    $filters.empty();
-  };
-
   IPTGenericFilter.prototype.getFilterDependencies = function(filter) {
-    var selector = '';
-    var dependencySelectors = filter.data(filterDataDependencies).toString();
-    var dependencies = dependencySelectors.split(',');
-
-    $.each(dependencies, function(index, id) {
-      selector += '#' + $.trim(id) + (index < dependencies.length - 1 ? ',' : '');
-    });
-
+    var dependencyList = filter.data(filterDataDependencies).toString();
+    var selector = convertDependencyListToSelector(dependencyList);
     var $dependencies = $(selector);
 
-    if (dependencySelectors.length === 0 || $dependencies.length === 0) {
-      return null;
-    }
-
-    return $dependencies;
+    return $dependencies.length > 0 ? $dependencies : null;
   };
 
   IPTGenericFilter.prototype.updateFilterDependencies = function($trigger, data) {
     var $dependencies = this.getFilterDependencies($trigger);
+    var recursion = isLastTriggerADependency(this._$lastTrigger, $trigger);
 
     // bail if there are no dependencies or recursion is detected
-    if (null === $dependencies || isLastTriggerADependency(this._$lastTrigger, $trigger)) {
+    if (null === $dependencies || recursion) {
       this.updateResult();
       this._$lastTrigger = null;
       return;
@@ -64,6 +49,11 @@
     // traverse dependency chain
     this._$lastTrigger = $trigger;
     this.updateFilterDependencies($dependencies, null);
+  };
+
+  IPTGenericFilter.prototype.clearFilter = function($filters) {
+    $filters.find(triggerSelector).val(null);
+    $filters.empty();
   };
 
   IPTGenericFilter.prototype.updateResult = function() {
@@ -100,32 +90,44 @@
     return is;
   }
 
+  function convertDependencyListToSelector(list) {
+    var selector = '';
+    var items = list.split(',');
+    var count = items.length;
+
+    for (var i = 0; i < count; i++) {
+      selector += '#' + $.trim(items[i]) + (i < (count - 1) ? ',' : '');
+    }
+
+    return selector;
+  }
+
   function isFilterCheckboxGroup($input) {
     var $filter = $input.closest(filterSelector);
     var $checkboxes = $filter.find('input[type="checkbox"]');
+
     return $checkboxes.length >= 2;
   }
 
-  function appendParamsCheckboxGroupValues($input, params) {
+  function appendParamsCheckboxGroupValues($input) {
     var $filter = $input.closest(filterSelector);
     var $checkboxes = $filter.find('input[type="checkbox"]');
-    params = params || '';
+    var params = $input.data('params');
+
     $checkboxes.each(function() {
       if ($(this).is(':checked') && $(this).attr('name') !== $input.attr('name')) {
         params += '&' + encodeURIComponent($(this).attr('name')) + '=on';
       }
     });
-    return params;
+
+    $input.data('params', params);
   }
 
-  function addUnobtrusiveAjaxParams(event) {
+  function handleUnobtrusiveAjaxBefore(event) {
     var instance = event.data;
     var $input = $(event.target);
     var $filter = $input.closest(filterSelector);
-    var dependencies = encodeURIComponent($.trim($filter.data(filterDataDependencies)));
-
-    var url = instance.settings.basePath + 'filter';
-    var params = 'dependencies=' + dependencies;
+    var dependencies = $.trim($filter.data(filterDataDependencies));
 
     // if trigger has no dependencies, skip call.
     if ('' === dependencies) {
@@ -135,13 +137,8 @@
 
     // handle checkbox groups
     if (isFilterCheckboxGroup($input)) {
-      params = appendParamsCheckboxGroupValues($input, params);
+      appendParamsCheckboxGroupValues($input);
     }
-
-    // map properties
-    $input.data('url', url);
-    $input.data('params', params);
-
   }
 
   function handleUnobtrusiveAjaxComplete(event, xhr) {
@@ -157,7 +154,7 @@
   }
 
   function addEventListeners(instance) {
-    instance.$form.on(getNamespacedEvent('ajax:before'), triggerSelector, instance, addUnobtrusiveAjaxParams);
+    instance.$form.on(getNamespacedEvent('ajax:before'), triggerSelector, instance, handleUnobtrusiveAjaxBefore);
     instance.$form.on(getNamespacedEvent('ajax:complete'), triggerSelector, instance, handleUnobtrusiveAjaxComplete);
   }
 
