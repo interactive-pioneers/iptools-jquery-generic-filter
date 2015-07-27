@@ -34,9 +34,11 @@
       return;
     }
 
-    // update markup
-    if (null !== data && null !== data.filters) {
-      updateDOM(data.filters);
+    // update or clear filter
+    //this.clearFilter($dependencies);
+    //updateDOM(data);
+    if (null !== data) {
+      updateDOM(data);
     } else {
       this.clearFilter($dependencies);
     }
