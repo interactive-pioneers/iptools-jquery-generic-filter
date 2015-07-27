@@ -6,6 +6,41 @@
   <link rel="stylesheet" href="../bower_components/mocha/mocha.css">
 </head>
 <body>
+  
+  <!-- generic filter demo -->
+  <form id="genericfilter-demo" accept-charset="UTF-8" action="/ajax/genericfilter/demo_linear_selects/result" class="genericfilter" data-component-options="{&quot;noDependencyFilterTrigger&quot;:false}" data-component="iptGenericFilter" data-remote="true" method="get">
+    <div style="margin:0;padding:0;display:inline">
+      <input name="utf8" type="hidden" value="✓">
+    </div>
+    <input name="target_id" type="hidden" value="container1">
+    <div class="genericfilter__filter" data-genericfilter-dependencies="level_1" id="level_0">
+      <div class="select select--full">
+        <select data-method="get" data-params="trigger=level_0" data-remote="true" data-type="json" data-url="/ajax/genericfilter/demo_linear_selects/filter/" id="level_0__input" name="level_0__input">
+          <option value="0">please choose</option>
+          <option value="1">value 1</option>
+          <option value="2">value 2</option>
+          <option value="3">value 3</option>
+          <option value="4">value 4</option>
+          <option value="5">value 5</option>
+        </select>
+      </div>
+    </div>
+    <div class="genericfilter__filter" data-genericfilter-dependencies="level_2" id="level_1">
+    </div>
+    <div class="genericfilter__filter" data-genericfilter-dependencies="" id="level_2">
+    </div>
+  </form>
+  <!-- /generic filter demo -->
+  
+  <!-- generic filter fail -->
+  <form id="genericfilter-fail" accept-charset="UTF-8" action="/ajax/genericfilter/demo_linear_selects/result" class="genericfilter" data-component-options="{&quot;noDependencyFilterTrigger&quot;:false}" data-component="iptGenericFilter" data-remote="true" method="get">
+    <input name="target_id" type="hidden" value="container1">
+    <div class="genericfilter__filter" id="fail-level_0"></div>
+    <div class="genericfilter__filter" data-genericfilter-dependencies="level_2" id="fail-level_1"></div>
+    <div class="genericfilter__filter" data-genericfilter-dependencies="" id="fail-level_2"></div>
+  </form>
+  <!-- /generic filter fail -->
+
   <div id="mocha"></div>
   <script src="../bower_components/jquery/dist/jquery.min.js"></script>
   <script src="../bower_components/mocha/mocha.js"></script>

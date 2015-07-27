@@ -1,14 +1,15 @@
 /* jshint undef: false */
+// jscs:disable maximumLineLength
 (function() {
   'use strict';
 
   describe('IPTGenericFilter', function() {
 
     var defaultConfig = {
-      child: 'level-1'
+      noDependencyFilterTrigger: false
     };
     var pluginName = 'plugin_iptGenericFilter';
-    var selector = '#level-0';
+    var selector = '#genericfilter-demo';
     var $object = null;
 
     describe('init', function() {
@@ -19,38 +20,17 @@
         }
       });
 
-      /*it('expected to construct object', function() {
+      it('expected to construct object', function() {
         $object = $(selector).iptGenericFilter(defaultConfig);
         return expect($object).to.be.an.object;
       });
 
       it('expected to throw error data is missing', function() {
         function test() {
-          $object = $(selector).iptGenericFilter(23);
+          $object = $('#genericfilter-fail').iptGenericFilter(defaultConfig);
         }
         return expect(test).to.throw();
       });
-
-      it('expected to throw error required property is missing', function() {
-        function test() {
-          $object = $(selector).iptGenericFilter({_child: '23'});
-        }
-        return expect(test).to.throw();
-      });
-
-      it('expected to throw error invalid type', function() {
-        function test() {
-          $object = $('#mocha').iptGenericFilter(defaultConfig);
-        }
-        return expect(test).to.throw();
-      });
-
-      it('expected to throw error required child dom element is missing', function() {
-        function test() {
-          $object = $(selector).iptGenericFilter({child: 'level-23'});
-        }
-        return expect(test).to.throw();
-      });*/
 
     });
 
@@ -64,32 +44,41 @@
         $object.data(pluginName).destroy();
       });
 
-      /*it('expected to optain null value', function() {
-        return expect($object.data(pluginName).getElementValue()).to.be.not.ok;
+      it('expected #level_0 to update it´s dependency #level_1 and clear clear it´s subdependency #level_2', function() {
+        var responseData = [{
+          'selector': 'level_1',
+          'template': '<div class="select select--full">  <select data-method="get" data-params="trigger=level_1" data-remote="true" data-type="json" data-url="/ajax/genericfilter/demo_linear_selects/filter/" id="level_1__input" name="level_1__input">    <option value="0">please choose</option>    <option value="1">value 1</option>    <option value="2">value 2</option>    <option value="3">value 3</option>    <option value="4">value 4</option>    <option value="5">value 5</option>  </select></div>'
+        }];
+        var $filter = $('#level_0');
+        var $dependency = $('#level_1');
+        var $subDependency = $('#level_2');
+        $subDependency.html('<p>test</p>');
+        $object.data(pluginName).updateFilterDependencies($filter, responseData);
+        return expect($dependency.html()).to.be.not.eq('') && expect($subDependency.html()).to.eq('');
       });
 
-      it('expected to optain null value', function() {
-        return expect($object.val('0').data(pluginName).getElementValue()).to.be.not.ok;
+      it('expected #level_0 to clear it`s dependency #level_1 and it`s subdependency #level_2', function() {
+        var responseData = null;
+        var $filter = $('#level_0');
+        var $dependency = $('#level_1');
+        var $subDependency = $('#level_2');
+        $dependency.html('<p>test</p>');
+        $subDependency.html('<p>test</p>');
+        $object.data(pluginName).updateFilterDependencies($filter, responseData);
+        return expect($dependency.html()).to.eq('') && expect($subDependency.html()).to.eq('');
       });
 
-      it('expected to optain numeric value 2', function() {
-        return expect($object.val('2').data(pluginName).getElementValue()).to.eql(2);
+      it('expected to empty filter container', function() {
+        var $filter = $object.find('.genericfilter__filter').eq(0);
+        $object.data(pluginName).clearFilter($filter);
+        return expect($filter.html()).to.eql('');
       });
 
-      it('expected to optain element type', function() {
-        $object.data(pluginName).getElementType();
-        return expect($object.data(pluginName).type).to.eql('select');
+      it('expected to reset filter inputs values', function() {
+        var $filter = $object.find('.genericfilter__filter').eq(0);
+        $object.data(pluginName).clearFilter($filter);
+        return expect($filter.find('input, select, textarea').val()).to.be.not.ok;
       });
-
-      it('expected to enable child filter', function() {
-        $object.data(pluginName).enableChildFilter();
-        return expect($object.data(pluginName).$child.attr('disabled')).to.not.be.ok;
-      });
-
-      it('expected to disable child filter', function() {
-        $object.data(pluginName).disableChildFilter();
-        return expect($object.data(pluginName).$child.attr('disabled')).to.eql('disabled');
-      });*/
 
     });
 
@@ -99,10 +88,10 @@
         $object = $(selector).iptGenericFilter(defaultConfig);
       });
 
-      /*it('expected to remove data', function() {
+      it('expected to remove data', function() {
         $object.data(pluginName).destroy();
         return expect($object.data(pluginName)).to.not.be.ok;
-      });*/
+      });
 
     });
   });
