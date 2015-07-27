@@ -25,7 +25,7 @@
 
   IPTGenericFilter.prototype.updateFilterDependencies = function($trigger, data) {
     var $dependencies = getFilterDependencies($trigger);
-    var recursion = isLastTriggerADependency(this._$lastTrigger, $trigger);
+    var recursion = isRecursion($trigger, this._$lastTrigger);
 
     // bail if there are no dependencies or recursion is detected
     if ($dependencies.length === 0 || recursion) {
@@ -68,38 +68,33 @@
     });
   }
 
-  function isLastTriggerADependency($lastTrigger, $trigger) {
+  function isRecursion($trigger, $lastTrigger) {
+    var recursion = false;
+    var $dependencies = getFilterDependencies($trigger);
+
     if (null === $lastTrigger) {
-      return false;
+      return recursion;
     }
 
-    //var _dependencies = $trigger.data(filterDataDependencies);
-    //var _selector = convertDependencyListToSelector(_dependencies);
-    //console.log($(_selector).is($lastTrigger).length > 0);
-    //return $(_selector).is($lastTrigger).length === 0;
-
-    var is = false;
-    var triggerId = $lastTrigger.attr('id');
-    var dependenciesSelector = $trigger.data(filterDataDependencies);
-    var dependencies = dependenciesSelector.split(',');
-
-    $.each(dependencies, function(index, value) {
-      if (triggerId === $.trim(value)) {
-        is = true;
+    $dependencies.each(function() {
+      if ($lastTrigger.attr('id') === $(this).attr('id')) {
+        recursion = true;
       }
     });
 
-    return is;
+    return recursion;
   }
 
   function getFilterDependencies($filter) {
     var list = $filter.data(filterDataDependencies);
     var selector = list.replace(/([A-Za-z]+[\w\-\:\.]*)/g, '#$&');
+
     return $(selector);
   }
 
   function isFilterCheckboxGroup($input) {
     var $checkboxes = getCheckboxGroupMembers($input, true);
+
     return $checkboxes.length > 0;
   }
 
@@ -126,10 +121,11 @@
   function handleUnobtrusiveAjaxBefore(event) {
     var instance = event.data;
     var $input = $(event.target);
-    var dependencies = $.trim($input.closest(filterSelector).data(filterDataDependencies));
+    var $filter = $input.closest(filterSelector);
+    var $dependencies = getFilterDependencies($filter);
 
     // If filter has no dependencies and call is not forced by settings, skip ajax call.
-    if ('' === dependencies && !instance.settings.noDependencyFilterTrigger) {
+    if (0 === $dependencies.length && !instance.settings.noDependencyFilterTrigger) {
       instance.updateResult();
       return false;
     }
