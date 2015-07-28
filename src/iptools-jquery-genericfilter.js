@@ -38,7 +38,7 @@
     //this.clearFilter($dependencies);
     //updateDOM(data);
     if (null !== data) {
-      updateDOM(data);
+      //updateDOM(data);
     } else {
       this.clearFilter($dependencies);
     }
@@ -62,11 +62,11 @@
     this.$form.removeData('plugin_' + pluginName);
   };
 
-  function updateDOM(filters) {
+  /*function updateDOM(filters) {
     $.each(filters, function(key, filter) {
       $('#' + filter.selector).html(filter.template);
     });
-  }
+  }*/
 
   function isRecursion($trigger, $lastTrigger) {
     var recursion = false;
@@ -124,9 +124,11 @@
     var $filter = $input.closest(filterSelector);
     var $dependencies = getFilterDependencies($filter);
 
+    // update result
+    instance.updateResult();
+
     // If filter has no dependencies and call is not forced by settings, skip ajax call.
     if (0 === $dependencies.length && !instance.settings.noDependencyFilterTrigger) {
-      instance.updateResult();
       return false;
     }
 
@@ -136,7 +138,7 @@
     }
   }
 
-  function handleUnobtrusiveAjaxComplete(event, xhr) {
+  /*function handleUnobtrusiveAjaxComplete(event, xhr) {
     var instance = event.data;
     var $filter = $(event.target).closest(filterSelector);
 
@@ -152,7 +154,7 @@
     } finally {
       instance.updateFilterDependencies($filter, responseJSON);
     }
-  }
+  }*/
 
   function getNamespacedEvent(name) {
     return name + '.' + pluginName;
@@ -160,7 +162,7 @@
 
   function addEventListeners(instance) {
     instance.$form.on(getNamespacedEvent('ajax:before'), triggerSelector, instance, handleUnobtrusiveAjaxBefore);
-    instance.$form.on(getNamespacedEvent('ajax:complete'), triggerSelector, instance, handleUnobtrusiveAjaxComplete);
+    //instance.$form.on(getNamespacedEvent('ajax:complete'), triggerSelector, instance, handleUnobtrusiveAjaxComplete);
   }
 
   function checkIntegrity($form) {
