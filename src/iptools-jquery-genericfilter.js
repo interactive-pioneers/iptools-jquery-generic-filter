@@ -23,7 +23,8 @@
     addEventListeners(this);
   }
 
-  IPTGenericFilter.prototype.updateFilterDependencies = function($trigger, data) {
+  // @TODO should be renamed because all this thing do is check nodep and check recursion
+  IPTGenericFilter.prototype.updateFilterDependencies = function($trigger) {
     var $dependencies = getFilterDependencies($trigger);
     var recursion = isRecursion($trigger, this._$lastTrigger);
 
@@ -33,19 +34,11 @@
       this._$lastTrigger = null;
       return;
     }
-
-    // update or clear filter
-    //this.clearFilter($dependencies);
-    //updateDOM(data);
-    if (null !== data) {
-      //updateDOM(data);
-    } else {
-      this.clearFilter($dependencies);
-    }
+    this.clearFilter($dependencies);
 
     // traverse dependency chain
     this._$lastTrigger = $trigger;
-    this.updateFilterDependencies($dependencies, null);
+    this.updateFilterDependencies($dependencies);
   };
 
   IPTGenericFilter.prototype.clearFilter = function($filters) {
@@ -61,12 +54,6 @@
     this.$form.off(pluginName);
     this.$form.removeData('plugin_' + pluginName);
   };
-
-  /*function updateDOM(filters) {
-    $.each(filters, function(key, filter) {
-      $('#' + filter.selector).html(filter.template);
-    });
-  }*/
 
   function isRecursion($trigger, $lastTrigger) {
     var recursion = false;
@@ -98,6 +85,13 @@
     return $checkboxes.length > 0;
   }
 
+  function getCheckboxGroupMembers($input, skipGiven) {
+    var $filter = $input.closest(filterSelector);
+    var $collection = $filter.find('input[type="checkbox"]').not(skipGiven ? $input : '');
+
+    return $collection;
+  }
+
   function appendCheckboxGroupValuesToAjaxParameter($input) {
     var $checkboxes = getCheckboxGroupMembers($input, true);
     var params = $input.data('params');
@@ -111,11 +105,16 @@
     $input.data('params', params);
   }
 
-  function getCheckboxGroupMembers($input, skipGiven) {
-    var $filter = $input.closest(filterSelector);
-    var $collection = $filter.find('input[type="checkbox"]').not(skipGiven ? $input : '');
+  function checkboxGroupHasValue($members) {
+    var hasValue = false;
 
-    return $collection;
+    $members.each(function() {
+      if ($(this).is(':checked')) {
+        hasValue = true;
+      }
+    });
+
+    return hasValue;
   }
 
   function handleUnobtrusiveAjaxBefore(event) {
@@ -123,6 +122,13 @@
     var $input = $(event.target);
     var $filter = $input.closest(filterSelector);
     var $dependencies = getFilterDependencies($filter);
+    var filterValue = normalizeFilterValue($input);
+
+    // If filter has a null value clear dependencies and skip ajax call.
+    if (null === filterValue) {
+      instance.updateFilterDependencies($filter);
+      return false;
+    }
 
     // update result
     instance.updateResult();
@@ -138,23 +144,18 @@
     }
   }
 
-  /*function handleUnobtrusiveAjaxComplete(event, xhr) {
-    var instance = event.data;
-    var $filter = $(event.target).closest(filterSelector);
+  function normalizeFilterValue($input) {
+    var value = $.trim($input.val());
+    var isCheckboxgroup = isFilterCheckboxGroup($input);
+    var $checkboxGroupMembers = getCheckboxGroupMembers($input, false);
+    var _checkboxGroupHasValue = checkboxGroupHasValue($checkboxGroupMembers);
 
-    var responseJSON = null;
-    try {
-      responseJSON = $.parseJSON(xhr.responseText);
-    } catch (error) {
-      if ('object' === typeof console && 'function' === typeof console.log) {
-        console.log(xhr);
-        console.log(error);
-      }
-      responseJSON = null;
-    } finally {
-      instance.updateFilterDependencies($filter, responseJSON);
+    if ('0' === value || '' === value || (isCheckboxgroup && !_checkboxGroupHasValue)) {
+      return null;
     }
-  }*/
+
+    return value;
+  }
 
   function getNamespacedEvent(name) {
     return name + '.' + pluginName;
@@ -162,7 +163,6 @@
 
   function addEventListeners(instance) {
     instance.$form.on(getNamespacedEvent('ajax:before'), triggerSelector, instance, handleUnobtrusiveAjaxBefore);
-    //instance.$form.on(getNamespacedEvent('ajax:complete'), triggerSelector, instance, handleUnobtrusiveAjaxComplete);
   }
 
   function checkIntegrity($form) {
