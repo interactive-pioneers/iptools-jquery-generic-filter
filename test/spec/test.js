@@ -44,41 +44,28 @@
         $object.data(pluginName).destroy();
       });
 
-      it('expected #level_0 to update it´s dependency #level_1 and clear clear it´s subdependency #level_2', function() {
-        var responseData = [{
-          'selector': 'level_1',
-          'template': '<div class="select select--full">  <select data-method="get" data-params="trigger=level_1" data-remote="true" data-type="json" data-url="/ajax/genericfilter/demo_linear_selects/filter/" id="level_1__input" name="level_1__input">    <option value="0">please choose</option>    <option value="1">value 1</option>    <option value="2">value 2</option>    <option value="3">value 3</option>    <option value="4">value 4</option>    <option value="5">value 5</option>  </select></div>'
-        }];
-        var $filter = $('#level_0');
-        var $dependency = $('#level_1');
-        var $subDependency = $('#level_2');
-        $subDependency.html('<p>test</p>');
-        $object.data(pluginName).updateFilterDependencies($filter, responseData);
-        return expect($dependency.html()).to.be.not.eq('') && expect($subDependency.html()).to.eq('');
+      it('expected to empty filter container and reset filter svalues', function() {
+        var $filter = $object.find('.genericfilter__filter').eq(0);
+        $object.data(pluginName).clearFilter($filter, true);
+        return expect($filter.html()).to.eql('') && expect($filter.find('input, select, textarea').val()).to.be.not.ok;
       });
 
-      it('expected #level_0 to clear it`s dependency #level_1 and it`s subdependency #level_2', function() {
-        var responseData = null;
+      it('expected to reset filter values', function() {
+        var $filter = $object.find('.genericfilter__filter').eq(0);
+        $object.data(pluginName).clearFilter($filter, false);
+        return expect($filter.find('input, select, textarea').val()).to.be.not.ok;
+      });
+
+      it('expected to empty and reset #level_1 and #level_2', function() {
         var $filter = $('#level_0');
         var $dependency = $('#level_1');
         var $subDependency = $('#level_2');
-        $dependency.html('<p>test</p>');
         $subDependency.html('<p>test</p>');
-        $object.data(pluginName).updateFilterDependencies($filter, responseData);
+        $object.data(pluginName).clearDependencyChain($filter, true);
         return expect($dependency.html()).to.eq('') && expect($subDependency.html()).to.eq('');
       });
 
-      it('expected to empty filter container', function() {
-        var $filter = $object.find('.genericfilter__filter').eq(0);
-        $object.data(pluginName).clearFilter($filter);
-        return expect($filter.html()).to.eql('');
-      });
-
-      it('expected to reset filter inputs values', function() {
-        var $filter = $object.find('.genericfilter__filter').eq(0);
-        $object.data(pluginName).clearFilter($filter);
-        return expect($filter.find('input, select, textarea').val()).to.be.not.ok;
-      });
+      // @TODO: Add tests for IPTGenericFilter.prototype.updateResult
 
     });
 
