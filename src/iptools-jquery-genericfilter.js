@@ -23,8 +23,7 @@
     addEventListeners(this);
   }
 
-  // @TODO should be renamed because all this thing do is check nodep and check recursion
-  IPTGenericFilter.prototype.updateFilterDependencies = function($trigger) {
+  IPTGenericFilter.prototype.clearDependencyChain = function($trigger, empty) {
     var $dependencies = getFilterDependencies($trigger);
     var recursion = isRecursion($trigger, this._$lastTrigger);
 
@@ -34,16 +33,19 @@
       this._$lastTrigger = null;
       return;
     }
-    this.clearFilter($dependencies);
+
+    this.clearFilter($dependencies, empty);
 
     // traverse dependency chain
     this._$lastTrigger = $trigger;
-    this.updateFilterDependencies($dependencies);
+    this.clearDependencyChain($dependencies, true);
   };
 
-  IPTGenericFilter.prototype.clearFilter = function($filters) {
+  IPTGenericFilter.prototype.clearFilter = function($filters, empty) {
     $filters.find(triggerSelector).val(null);
-    $filters.empty();
+    if (empty) {
+      $filters.empty();
+    }
   };
 
   IPTGenericFilter.prototype.updateResult = function() {
@@ -124,17 +126,11 @@
     var $dependencies = getFilterDependencies($filter);
     var filterValue = normalizeFilterValue($input);
 
-    // If filter has a null value clear dependencies and skip ajax call.
-    if (null === filterValue) {
-      instance.updateFilterDependencies($filter);
-      return false;
-    }
+    // clear dependency chain
+    instance.clearDependencyChain($filter, null === filterValue);
 
-    // update result
-    instance.updateResult();
-
-    // If filter has no dependencies and call is not forced by settings, skip ajax call.
-    if (0 === $dependencies.length && !instance.settings.noDependencyFilterTrigger) {
+    // Skip ajax call if filter value is null or has no dependencies
+    if (null === filterValue || (0 === $dependencies.length && !instance.settings.noDependencyFilterTrigger)) {
       return false;
     }
 
@@ -142,6 +138,9 @@
     if (isFilterCheckboxGroup($input)) {
       appendCheckboxGroupValuesToAjaxParameter($input);
     }
+
+    // update result
+    instance.updateResult();
   }
 
   function normalizeFilterValue($input) {
