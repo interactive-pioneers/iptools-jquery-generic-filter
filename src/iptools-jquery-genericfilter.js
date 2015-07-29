@@ -57,6 +57,26 @@
     this.$form.removeData('plugin_' + pluginName);
   };
 
+  function getFilterDependencies($filter) {
+    var list = $filter.data(filterDataDependencies);
+    var selector = list.replace(/([A-Za-z]+[\w\-\:\.]*)/g, '#$&');
+
+    return $(selector);
+  }
+
+  function normalizeFilterValue($input) {
+    var value = $.trim($input.val());
+    var isCheckboxgroup = isFilterCheckboxGroup($input);
+    var $checkboxGroupMembers = getCheckboxGroupMembers($input, false);
+    var _checkboxGroupHasValue = checkboxGroupHasValue($checkboxGroupMembers);
+
+    if ('0' === value || '' === value || (isCheckboxgroup && !_checkboxGroupHasValue)) {
+      return null;
+    }
+
+    return value;
+  }
+
   function isRecursion($trigger, $lastTrigger) {
     var recursion = false;
     var $dependencies = getFilterDependencies($trigger);
@@ -74,11 +94,28 @@
     return recursion;
   }
 
-  function getFilterDependencies($filter) {
-    var list = $filter.data(filterDataDependencies);
-    var selector = list.replace(/([A-Za-z]+[\w\-\:\.]*)/g, '#$&');
+  function handleUnobtrusiveAjaxBefore(event) {
+    var instance = event.data;
+    var $input = $(event.target);
+    var $filter = $input.closest(filterSelector);
+    var $dependencies = getFilterDependencies($filter);
+    var filterValue = normalizeFilterValue($input);
 
-    return $(selector);
+    // clear dependency chain
+    instance.clearDependencyChain($filter, null === filterValue);
+
+    // Skip ajax call if filter value is null or has no dependencies
+    if (null === filterValue || (0 === $dependencies.length && !instance.settings.noDependencyFilterTrigger)) {
+      return false;
+    }
+
+    // If filter is part of a checkbox group, append values from all group members to ajax call.
+    if (isFilterCheckboxGroup($input)) {
+      appendCheckboxGroupValuesToAjaxParameter($input);
+    }
+
+    // update result
+    instance.updateResult();
   }
 
   function isFilterCheckboxGroup($input) {
@@ -117,43 +154,6 @@
     });
 
     return hasValue;
-  }
-
-  function handleUnobtrusiveAjaxBefore(event) {
-    var instance = event.data;
-    var $input = $(event.target);
-    var $filter = $input.closest(filterSelector);
-    var $dependencies = getFilterDependencies($filter);
-    var filterValue = normalizeFilterValue($input);
-
-    // clear dependency chain
-    instance.clearDependencyChain($filter, null === filterValue);
-
-    // Skip ajax call if filter value is null or has no dependencies
-    if (null === filterValue || (0 === $dependencies.length && !instance.settings.noDependencyFilterTrigger)) {
-      return false;
-    }
-
-    // If filter is part of a checkbox group, append values from all group members to ajax call.
-    if (isFilterCheckboxGroup($input)) {
-      appendCheckboxGroupValuesToAjaxParameter($input);
-    }
-
-    // update result
-    instance.updateResult();
-  }
-
-  function normalizeFilterValue($input) {
-    var value = $.trim($input.val());
-    var isCheckboxgroup = isFilterCheckboxGroup($input);
-    var $checkboxGroupMembers = getCheckboxGroupMembers($input, false);
-    var _checkboxGroupHasValue = checkboxGroupHasValue($checkboxGroupMembers);
-
-    if ('0' === value || '' === value || (isCheckboxgroup && !_checkboxGroupHasValue)) {
-      return null;
-    }
-
-    return value;
   }
 
   function getNamespacedEvent(name) {
