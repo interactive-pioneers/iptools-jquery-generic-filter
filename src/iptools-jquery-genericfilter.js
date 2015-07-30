@@ -49,7 +49,6 @@
   };
 
   IPTGenericFilter.prototype.updateResult = function() {
-    console.log('updateResult');
     this.$form.submit();
   };
 
