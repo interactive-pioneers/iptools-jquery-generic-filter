@@ -30,7 +30,6 @@
 
     // bail if there are no dependencies or recursion is detected
     if ($dependencies.length === 0 || recursion) {
-      this.updateResult();
       this._$lastTrigger = null;
       return;
     }
@@ -50,6 +49,7 @@
   };
 
   IPTGenericFilter.prototype.updateResult = function() {
+    console.log('updateResult');
     this.$form.submit();
   };
 
@@ -105,11 +105,6 @@
     // clear dependency chain
     instance.clearDependencyChain($filter, null === filterValue);
 
-    // Skip ajax call if filter value is null or has no dependencies
-    if (null === filterValue || (0 === $dependencies.length && !instance.settings.noDependencyFilterTrigger)) {
-      return false;
-    }
-
     // If filter is part of a checkbox group, append values from all group members to ajax call.
     if (isFilterCheckboxGroup(instance, $input)) {
       appendCheckboxGroupValuesToAjaxParameter(instance, $input);
@@ -117,6 +112,11 @@
 
     // update result
     instance.updateResult();
+
+    // Skip ajax call if filter value is null or has no dependencies
+    if (null === filterValue || (0 === $dependencies.length && !instance.settings.noDependencyFilterTrigger)) {
+      return false;
+    }
   }
 
   function isFilterCheckboxGroup(instance, $input) {
