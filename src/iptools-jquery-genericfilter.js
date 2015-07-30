@@ -6,11 +6,12 @@
   var pluginName = 'iptGenericFilter';
 
   var defaults = {
-    noDependencyFilterTrigger: false
+    noDependencyFilterTrigger: false,
+    filterSelector: '.genericfilter__filter'
   };
 
   var triggerSelector = 'input, select, textarea';
-  var filterSelector = '.genericfilter__filter';
+  //var filterSelector = '.genericfilter__filter';
   var filterDataDependencies = 'genericfilter-dependencies';
 
   function IPTGenericFilter(form, options) {
@@ -18,7 +19,7 @@
     this.$form = $(form);
     this._$lastTrigger = null;
 
-    checkIntegrity(this.$form);
+    checkIntegrity(this);
 
     addEventListeners(this);
   }
@@ -64,10 +65,10 @@
     return $(selector);
   }
 
-  function normalizeFilterValue($input) {
+  function normalizeFilterValue(instance, $input) {
     var value = $.trim($input.val());
-    var isCheckboxgroup = isFilterCheckboxGroup($input);
-    var $checkboxGroupMembers = getCheckboxGroupMembers($input, false);
+    var isCheckboxgroup = isFilterCheckboxGroup(instance, $input);
+    var $checkboxGroupMembers = getCheckboxGroupMembers(instance, $input, false);
     var _checkboxGroupHasValue = checkboxGroupHasValue($checkboxGroupMembers);
 
     if ('0' === value || '' === value || (isCheckboxgroup && !_checkboxGroupHasValue)) {
@@ -97,9 +98,9 @@
   function handleUnobtrusiveAjaxBefore(event) {
     var instance = event.data;
     var $input = $(event.target);
-    var $filter = $input.closest(filterSelector);
+    var $filter = $input.closest(instance.settings.filterSelector);
     var $dependencies = getFilterDependencies($filter);
-    var filterValue = normalizeFilterValue($input);
+    var filterValue = normalizeFilterValue(instance, $input);
 
     // clear dependency chain
     instance.clearDependencyChain($filter, null === filterValue);
@@ -110,29 +111,29 @@
     }
 
     // If filter is part of a checkbox group, append values from all group members to ajax call.
-    if (isFilterCheckboxGroup($input)) {
-      appendCheckboxGroupValuesToAjaxParameter($input);
+    if (isFilterCheckboxGroup(instance, $input)) {
+      appendCheckboxGroupValuesToAjaxParameter(instance, $input);
     }
 
     // update result
     instance.updateResult();
   }
 
-  function isFilterCheckboxGroup($input) {
-    var $checkboxes = getCheckboxGroupMembers($input, true);
+  function isFilterCheckboxGroup(instance, $input) {
+    var $checkboxes = getCheckboxGroupMembers(instance, $input, true);
 
     return $checkboxes.length > 0;
   }
 
-  function getCheckboxGroupMembers($input, skipGiven) {
-    var $filter = $input.closest(filterSelector);
+  function getCheckboxGroupMembers(instance, $input, skipGiven) {
+    var $filter = $input.closest(instance.settings.filterSelector);
     var $collection = $filter.find('input[type="checkbox"]').not(skipGiven ? $input : '');
 
     return $collection;
   }
 
-  function appendCheckboxGroupValuesToAjaxParameter($input) {
-    var $checkboxes = getCheckboxGroupMembers($input, true);
+  function appendCheckboxGroupValuesToAjaxParameter(instance, $input) {
+    var $checkboxes = getCheckboxGroupMembers(instance, $input, true);
     var params = $input.data('params');
 
     $checkboxes.each(function() {
@@ -164,10 +165,10 @@
     instance.$form.on(getNamespacedEvent('ajax:before'), triggerSelector, instance, handleUnobtrusiveAjaxBefore);
   }
 
-  function checkIntegrity($form) {
+  function checkIntegrity(instance) {
     // check for required filter attribute "data-genericfilter-dependencies"
     // @IMPROVEMENT: Add empty attribute instead of trowing an error.
-    $form.find(filterSelector).each(function() {
+    instance.$form.find(instance.settings.filterSelector).each(function() {
       if (typeof $(this).data(filterDataDependencies) === 'undefined') {
         throw new Error('Required data attribute genericfilter-dependencies missing for ' + $(this).attr('id'));
       }
