@@ -161,7 +161,7 @@
   }
 
   function addEventListeners(instance) {
-    instance.$form.on(getNamespacedEvent('ajax:before'), triggerSelector, instance, handleUnobtrusiveAjaxBefore);
+    instance.$form.on(getNamespacedEvent('ajax:beforeSend'), triggerSelector, instance, handleUnobtrusiveAjaxBefore);
   }
 
   function checkIntegrity(instance) {
