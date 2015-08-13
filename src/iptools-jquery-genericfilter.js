@@ -112,10 +112,19 @@
     // update result
     instance.updateResult();
 
+    // disable all inputs while ajax request is pending
+    disableFormInputs(instance);
+
     // Skip ajax call if filter value is null or has no dependencies
     if (null === filterValue || (0 === $dependencies.length && !instance.settings.noDependencyFilterTrigger)) {
       return false;
     }
+  }
+
+  function handleUnobtrusiveAjaxComplete(event) {
+    var instance = event.data;
+
+    enableFormInputs(instance);
   }
 
   function isFilterCheckboxGroup(instance, $input) {
@@ -156,12 +165,23 @@
     return hasValue;
   }
 
+  function disableFormInputs(instance) {
+    instance.$form.find(triggerSelector).attr('disabled', 'disabled');
+  }
+
+  function enableFormInputs(instance) {
+    instance.$form.find(triggerSelector).removeAttr('disabled');
+  }
+
   function getNamespacedEvent(name) {
     return name + '.' + pluginName;
   }
 
   function addEventListeners(instance) {
-    instance.$form.on(getNamespacedEvent('ajax:beforeSend'), triggerSelector, instance, handleUnobtrusiveAjaxBefore);
+    instance.$form
+      .on(getNamespacedEvent('ajax:beforeSend'), triggerSelector, instance, handleUnobtrusiveAjaxBefore)
+      .on(getNamespacedEvent('ajax:complete'), triggerSelector, instance, handleUnobtrusiveAjaxComplete);
+    instance.$form.on(getNamespacedEvent('ajax:complete'), instance, handleUnobtrusiveAjaxComplete);
   }
 
   function checkIntegrity(instance) {
