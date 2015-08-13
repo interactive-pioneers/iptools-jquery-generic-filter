@@ -11,7 +11,6 @@
   };
 
   var triggerSelector = 'input, select, textarea';
-  //var filterSelector = '.genericfilter__filter';
   var filterDataDependencies = 'genericfilter-dependencies';
 
   function IPTGenericFilter(form, options) {
@@ -101,6 +100,10 @@
     var $dependencies = getFilterDependencies($filter);
     var filterValue = normalizeFilterValue(instance, $input);
 
+    var isFilterValue = null === filterValue;
+    var isStopPropagation = 0 === $dependencies.length && !instance.settings.noDependencyFilterTrigger;
+    var skipFilterAjax = isFilterValue || isStopPropagation;
+
     // clear dependency chain
     instance.clearDependencyChain($filter, null === filterValue);
 
@@ -110,15 +113,25 @@
     }
 
     // update result
+    if (skipFilterAjax) {
+      addTemporaryListener(instance);
+    }
     instance.updateResult();
 
     // disable all inputs while ajax request is pending
     disableFormInputs(instance);
 
     // Skip ajax call if filter value is null or has no dependencies
-    if (null === filterValue || (0 === $dependencies.length && !instance.settings.noDependencyFilterTrigger)) {
+    if (skipFilterAjax) {
       return false;
     }
+  }
+
+  function handleTemporaryUnobtrusiveAjaxComplete(event) {
+    var instance = event.data;
+
+    handleUnobtrusiveAjaxComplete(event);
+    removeTemporaryListener(instance);
   }
 
   function handleUnobtrusiveAjaxComplete(event) {
@@ -173,15 +186,24 @@
     instance.$form.find(triggerSelector).removeAttr('disabled');
   }
 
-  function getNamespacedEvent(name) {
-    return name + '.' + pluginName;
+  function getNamespacedEvent(name, _suffix) {
+    var suffix = _suffix || '';
+
+    return name + '.' + pluginName + suffix;
   }
 
   function addEventListeners(instance) {
     instance.$form
       .on(getNamespacedEvent('ajax:beforeSend'), triggerSelector, instance, handleUnobtrusiveAjaxBefore)
       .on(getNamespacedEvent('ajax:complete'), triggerSelector, instance, handleUnobtrusiveAjaxComplete);
-    instance.$form.on(getNamespacedEvent('ajax:complete'), instance, handleUnobtrusiveAjaxComplete);
+  }
+
+  function addTemporaryListener(instance) {
+    instance.$form.on(getNamespacedEvent('ajax:complete', 'temp'), instance, handleTemporaryUnobtrusiveAjaxComplete);
+  }
+
+  function removeTemporaryListener(instance) {
+    instance.$form.off(getNamespacedEvent('ajax:complete', 'temp'));
   }
 
   function checkIntegrity(instance) {
