@@ -10,7 +10,8 @@
     filterSelector: '.genericfilter__filter'
   };
 
-  var triggerSelector = 'input, select, textarea';
+  var triggerSelector = 'input, select, textarea, button[type="submit"]';
+  var submitSelector = 'button[type="submit"], input[type="submit"]';
   var filterDataDependencies = 'genericfilter-dependencies';
 
   function IPTGenericFilter(form, options) {
@@ -178,6 +179,18 @@
     return hasValue;
   }
 
+  function preventFormSubmit(event) {
+    var instance = event.data;
+
+    // if no request is pending, trigger last filter request
+    if ('undefined' === typeof instance.$form.find(submitSelector).attr('disabled')) {
+      instance.$form.find('input[data-remote="true"]').last().trigger('change');
+    }
+
+    event.preventDefault();
+    return false;
+  }
+
   function disableFormInputs(instance) {
     instance.$form.find(triggerSelector).attr('disabled', 'disabled');
   }
@@ -195,7 +208,8 @@
   function addEventListeners(instance) {
     instance.$form
       .on(getNamespacedEvent('ajax:beforeSend'), triggerSelector, instance, handleUnobtrusiveAjaxBefore)
-      .on(getNamespacedEvent('ajax:complete'), triggerSelector, instance, handleUnobtrusiveAjaxComplete);
+      .on(getNamespacedEvent('ajax:complete'), triggerSelector, instance, handleUnobtrusiveAjaxComplete)
+      .on(getNamespacedEvent('click'), submitSelector, instance, preventFormSubmit);
   }
 
   function addTemporaryListener(instance) {
