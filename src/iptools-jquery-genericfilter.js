@@ -12,6 +12,7 @@
 
   var triggerSelector = 'input, select, textarea, button[type="submit"]';
   var submitSelector = 'button[type="submit"], input[type="submit"]';
+  var lastFilterSelector = 'input[data-remote="true"], select[data-remote="true"], textarea[data-remote="true"]';
   var filterDataDependencies = 'genericfilter-dependencies';
 
   function IPTGenericFilter(form, options) {
@@ -184,7 +185,7 @@
 
     // if no request is pending, trigger last filter request
     if ('undefined' === typeof instance.$form.find(submitSelector).attr('disabled')) {
-      instance.$form.find('input[data-remote="true"]').last().trigger('change');
+      instance.$form.find(lastFilterSelector).last().trigger('change');
     }
 
     event.preventDefault();
