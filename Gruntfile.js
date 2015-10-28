@@ -12,6 +12,7 @@ module.exports = function(grunt) {
     yeoman: {
       src: 'src',
       dist: 'dist',
+      test: 'test',
       pkg: grunt.file.readJSON('package.json'),
       meta: {
         banner: '/*! <%= yeoman.pkg.name %> - v<%= yeoman.pkg.version %> - ' +
@@ -46,11 +47,11 @@ module.exports = function(grunt) {
       all: [
         'Gruntfile.js',
         '<%= yeoman.src %>/{,*/}*.js',
-        'test/spec/{,*/}*.js'
+        '<%= yeoman.test %>/spec/{,*/}*.js'
       ]
     },
     jscs: {
-      src: 'src/**/*.js',
+      src: '<%= yeoman.src %>/**/*.js',
       options: {
         config: '.jscs.json',
         fix: false,
@@ -75,7 +76,7 @@ module.exports = function(grunt) {
           run: true,
           log: true
         },
-        src: ['test/index.html']
+        src: ['<%= yeoman.test %>/index.html']
       }
     },
     concurrent: {
@@ -100,7 +101,7 @@ module.exports = function(grunt) {
       },
       dist: {
         files: {
-          'dist/iptools-jquery-genericfilter.min.js': 'src/iptools-jquery-genericfilter.js'
+          '<%= yeoman.dist %>/iptools-jquery-genericfilter.min.js': '<%= yeoman.src %>/iptools-jquery-genericfilter.js'
         }
       }
     },
@@ -110,7 +111,7 @@ module.exports = function(grunt) {
           style: 'expanded'
         },
         files: {
-          'dist/iptools-jquery-genericfilter.css': 'styles/styles.scss',
+          '<%= yeoman.dist %>/iptools-jquery-genericfilter.css': 'styles/styles.scss',
         }
       }
     },
