@@ -38,12 +38,7 @@
     "type": "git",
     "url": "https://github.com/interactive-pioneers/iptools-jquery-genericfilter"
   },
-  "licenses": [
-    {
-      "type": "GPL",
-      "url": "https://github.com/ain/koodmeeter.js/blob/master/LICENSE"
-    }
-  ],
+  "license": "GPL-3.0",
   "scripts": {
     "test": "grunt travis --verbose"
   },

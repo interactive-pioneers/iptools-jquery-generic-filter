@@ -18,7 +18,7 @@ module.exports = function(grunt) {
           '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
           '* <%= yeoman.pkg.homepage %>\n' +
           '* Copyright © <%= grunt.template.today("yyyy") %> ' +
-          '<%= yeoman.pkg.author.name %>; Licensed <%= yeoman.pkg.licenses[0].type %> */\n'
+          '<%= yeoman.pkg.author.name %>; Licensed <%= yeoman.pkg.license %> */\n'
       },
     },
     watch: {
