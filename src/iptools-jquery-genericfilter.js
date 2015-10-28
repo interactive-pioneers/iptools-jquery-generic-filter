@@ -209,7 +209,7 @@
   function addEventListeners(instance) {
     instance.$form
       .on(getNamespacedEvent('ajax:beforeSend'), triggerSelector, instance, handleUnobtrusiveAjaxBefore)
-      .on(getNamespacedEvent('ajax:complete'), triggerSelector, instance, handleUnobtrusiveAjaxComplete)
+      .on(getNamespacedEvent('ajax:complete'), null, instance, handleUnobtrusiveAjaxComplete)
       .on(getNamespacedEvent('click'), submitSelector, instance, preventFormSubmit);
   }
 
