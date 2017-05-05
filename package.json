@@ -45,5 +45,12 @@
   "keywords": [
     "javascript",
     "jquery"
+  ],
+  "files": [
+    "*.md",
+    "LICENSE",
+    "src",
+    "dist",
+    "styles"
   ]
 }
