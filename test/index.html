@@ -3,10 +3,10 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <title>Mocha Spec Runner</title>
-  <link rel="stylesheet" href="../bower_components/mocha/mocha.css">
+  <link rel="stylesheet" href="../node_modules/mocha/mocha.css">
 </head>
 <body>
-  
+
   <!-- generic filter demo -->
   <form id="genericfilter-demo" accept-charset="UTF-8" action="/ajax/genericfilter/demo_linear_selects/result" class="genericfilter" data-component-options="{&quot;noDependencyFilterTrigger&quot;:false}" data-component="iptGenericFilter" data-remote="true" method="get">
     <div style="margin:0;padding:0;display:inline">
@@ -31,7 +31,7 @@
     </div>
   </form>
   <!-- /generic filter demo -->
-  
+
   <!-- generic filter fail -->
   <form id="genericfilter-fail" accept-charset="UTF-8" action="/ajax/genericfilter/demo_linear_selects/result" class="genericfilter" data-component-options="{&quot;noDependencyFilterTrigger&quot;:false}" data-component="iptGenericFilter" data-remote="true" method="get">
     <input name="target_id" type="hidden" value="container1">
@@ -42,9 +42,9 @@
   <!-- /generic filter fail -->
 
   <div id="mocha"></div>
-  <script src="../bower_components/jquery/dist/jquery.min.js"></script>
-  <script src="../bower_components/mocha/mocha.js"></script>
-  <script src="../bower_components/chai/chai.js"></script>
+  <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+  <script src="../node_modules/mocha/mocha.js"></script>
+  <script src="../node_modules/chai/chai.js"></script>
   <script>mocha.setup('bdd');</script>
   <script>var expect = chai.expect;</script>
   <script src="../src/iptools-jquery-genericfilter.js"></script>
