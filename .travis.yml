@@ -1,12 +1,7 @@
 language: node_js
-#rvm:
-#  - 2.1.5
 node_js:
-  - 0.12
+  - 6.2
+  - 7.5
 before_install:
   - rvm install 2.1.5
   - bundle install
-  - npm cache clean
-  - npm install -g grunt-cli
-  - npm install -g bower
-  - bower install
